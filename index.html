@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-beta.2/css/bootstrap.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/popper.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
+    
+</head>
+<body>
+    <style>
+        #form-book-codes > div{
+  margin:2%;
+}
+
+#form-book-codes > div > input{
+  margin-right:2%;
+}
+    </style>
+    
+    
+  <div class="row mb-4">
+    <div class="col text-center">
+      <h3>The Large Modal</h3>
+      <a href="#" class="btn btn-lg btn-primary" data-toggle="modal" data-target="#largeModal">Click to open Modal</a>
+    </div>
+  </div>
+
+
+<!-- large modal -->
+<div class="modal fade" id="largeModal" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel">Ingreso de codigos</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body row justify-content-md-center">
+        
+        <div class="col-md-3">
+          <center><strong><label>Codigos :</label></strong></center>
+        </div>
+        <div class="col-md-6" id="form-book-codes">
+        </div>
+        <div class="col-md-1">
+          <button class="btn btn-info" onclick="addInputBookCode()">+</button>
+        </div>
+        
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="saveBookCodes()">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    
+function create_UUID(){
+    var dt = new Date().getTime();
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = (dt + Math.random()*16)%16 | 0;
+        dt = Math.floor(dt/16);
+        return (c=='x' ? r :(r&0x3|0x8)).toString(16);
+    });
+    return uuid;
+}
+
+
+class FormBookCodes {
+  
+  constructor(el_parent){
+    this.container = el_parent;
+    this.template_input = `<div class="col-12" style="display:flex">
+      <input placeholder="Ingrese codigo" class="form-control col-md-10" id="<% id_input %>"/>
+      <span class="btn btn-danger" onclick="deleteInputBookCode('<% id_input %>')">X</span>
+    </div>`;
+  }
+  
+  createNodeInput(){
+    let el = document.createElement("div");
+    el.classList.add("col-12");
+    el.style.display = "flex";
+    el.innerHTML = `<input placeholder="Ingrese codigo" class="form-control col-md-10" id="<% id_input %>"/>
+      <span class="btn btn-danger" onclick="deleteInputBookCode('<% id_input %>')">X</span>`.replace(/<% id_input %>/g, create_UUID());
+    return el;
+  }
+  
+  deleteInputCode = (id)=>{
+    const list_input_book_code = this.container.querySelectorAll("input");
+    let container = this.container;
+    list_input_book_code.forEach((input)=>{
+      if(input.id == id){
+        container.removeChild(input.parentNode); 
+      }
+    })
+  }
+  
+  addInputCode = ()=>{
+    const list_input_book_code = this.container.querySelectorAll("input");
+    if(list_input_book_code.length == 0){
+      this.container.innerHTML = this.template_input.replace(/<% id_input %>/g, create_UUID());
+    }
+    else{
+      this.container.insertBefore(this.createNodeInput(), list_input_book_code[list_input_book_code.length - 1].parentNode);
+    } 
+  }
+  
+  getCodes = ()=>{
+    const list_input_book_code = this.container.querySelectorAll("input");
+    let list_book_code = [];
+    list_input_book_code.forEach((input)=>{
+      if(input.value != null && input.value != ""){
+        list_book_code.push(input.value);
+      }
+    })
+    return list_book_code
+  }
+}
+
+
+const form = new FormBookCodes(document.getElementById("form-book-codes"));
+form.addInputCode();
+
+function saveBookCodes(){
+  console.log(form.getCodes())
+}
+
+function addInputBookCode(){
+  form.addInputCode();
+}
+
+function deleteInputBookCode(id){
+  form.deleteInputCode(id);
+}
+</script>
+</body>
+</html>
